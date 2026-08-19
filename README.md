@@ -1,52 +1,112 @@
-# Applied Decision Intelligence - Research Notes
+# How Reinforcement Learning Fits into Quantitative Investing
 
-A public archive of research notes from **Applied Decision Intelligence** on reinforcement learning, sequential decision-making, Bayesian methods, operations research, and applied decision systems.
-
-The purpose of this repository is to keep conceptual research notes separate from code-heavy reproducible projects. Some notes begin as frameworks or research questions and may later develop into dedicated repositories with code, data, experiments, and formal papers.
-
-## Research notes
-
-### 01. How Reinforcement Learning Fits into Quantitative Investing
-
-**Subtitle:** *From prediction to adaptive portfolio decisions*
-
-This note asks where reinforcement learning fits in a quantitative investment process and where simpler methods may be enough. It treats a long-horizon portfolio as a running example and separates prediction, constrained optimization, sequential control, and uncertainty-aware decisions.
-
-The main idea is that RL is most useful **after prediction**, when today's action changes the state from which tomorrow's decision will be made. The note also treats **no trade** as a valid action and argues that RL should be compared against strong operations-research and model-predictive-control baselines rather than assumed to be superior.
-
-[Read the research note](01-how-rl-fits-into-quantitative-investing/README.md)  
-[Open the PDF](01-how-rl-fits-into-quantitative-investing/How_Reinforcement_Learning_Fits_into_Quantitative_Investing.pdf)
-
-![Cover of How Reinforcement Learning Fits into Quantitative Investing](01-how-rl-fits-into-quantitative-investing/assets/cover.png)
-
-## Repository structure
-
-```text
-applied-decision-intelligence-notes/
-├── README.md
-└── 01-how-rl-fits-into-quantitative-investing/
-    ├── README.md
-    ├── How_Reinforcement_Learning_Fits_into_Quantitative_Investing.pdf
-    ├── CITATION.md
-    └── assets/
-        └── cover.png
-```
-
-## Scope
-
-This repository is for **research notes, conceptual frameworks, and early-stage research directions**. A note may contain equations, proposed experiments, testable hypotheses, or practical decision frameworks without yet having a codebase or dataset.
-
-When a note develops into a reproducible research project, the code, data-processing pipeline, experiments, and formal working paper can live in a separate project repository and link back here.
-
-## Research boundary
-
-The material in this repository is for research and educational use. Investment-related notes describe decision frameworks and research questions; they are not investment advice or claims of trading performance.
-
-## Author
+## From prediction to adaptive portfolio decisions
 
 **Shenggang Li**  
-Applied Decision Intelligence
+Applied Decision Intelligence Research Note, August 2026
 
-## Copyright
+![Research note cover](assets/cover.png)
 
-Unless otherwise stated, written materials in this repository are copyright © 2026 Shenggang Li. No open-content license is granted by default. Individual future projects may use separate licenses for code, data, or written materials.
+## Overview
+
+Quantitative investing is often described as a forecasting problem, but a forecast is not yet a decision. A portfolio process still has to decide whether a signal is strong enough to act on, how much capital should move, which constraints matter, and whether waiting is better than trading.
+
+This research note explains where reinforcement learning can fit into that process. The central distinction is:
+
+$$
+\text{prediction} \rightarrow \text{decision} \rightarrow \text{new state} \rightarrow \text{next decision}.
+$$
+
+RL becomes relevant when today's decision changes the state from which future decisions will be made. It is therefore presented here as a **decision layer**, not as a label for short-term trading.
+
+## A two-timescale portfolio view
+
+The running example separates a long-horizon strategic portfolio from a small adaptive overlay:
+
+$$
+w_t = w_t^{L} + u_t.
+$$
+
+The strategic component $w_t^{L}$ reflects slower-moving conviction. The overlay $u_t$ is bounded so that the adaptive controller can make small adjustments without replacing the long-term investment thesis.
+
+A simple constraint is
+
+$$
+|u_{i,t}| \leq \delta_i.
+$$
+
+This turns the research problem into a narrow question: given a portfolio that is already intended to be held, when is there enough evidence to justify a small change in weights?
+
+## Start with optimization, not RL
+
+The note does not assume that RL is automatically better than classical optimization. A strong baseline is constrained operations research or model predictive control. For example, a small portfolio adjustment $\Delta w_t$ can be chosen by balancing estimated opportunity, portfolio risk, and unnecessary movement:
+
+$$
+\max_{\Delta w_t}
+\left\{
+\hat{\mu}_t^{\top}(w_t+\Delta w_t)
+- \frac{\gamma}{2}(w_t+\Delta w_t)^{\top}\Sigma_t(w_t+\Delta w_t)
+- \lambda\|\Delta w_t\|_2^2
+\right\}.
+$$
+
+RL earns a role only when sequential effects - such as path dependence, persistent regimes, delayed consequences, or the value of waiting - add measurable value beyond these baselines.
+
+## No trade is a real action
+
+A decision system should not be rewarded for manufacturing activity. Sometimes the best action is
+
+$$
+a_t = 0.
+$$
+
+With a learned value function, the relevant comparison is
+
+$$
+Q(s_t,a_t^*) - Q(s_t,0).
+$$
+
+If the advantage is small relative to uncertainty, the system can wait. A conservative version can use a lower confidence bound and act only when the estimated improvement remains positive after accounting for uncertainty.
+
+This makes uncertainty part of the action rule rather than just part of the forecast.
+
+## What the note proposes to test
+
+The article develops three practical hypotheses:
+
+- **Uncertainty gating should improve decision quality.** The benefit may appear through lower turnover, lower drawdown, or fewer low-conviction actions rather than only through higher raw return.
+- **RL should not win everywhere.** OR or MPC may be difficult to beat in short-horizon or nearly stationary settings. RL should help only when future state effects are strong enough to matter.
+- **Higher uncertainty should increase the probability of no change.** A useful controller should become more willing to wait as its decision evidence weakens.
+
+A serious experiment should therefore compare buy-and-hold, periodic rebalancing, constrained OR/MPC, RL control, and uncertainty-gated variants under the same leakage-safe and walk-forward evaluation process.
+
+## Practical interpretation
+
+The intended architecture is modular:
+
+```text
+prediction
+   ↓
+constrained optimization
+   ↓
+sequential decision layer
+   ↓
+uncertainty gate
+   ↓
+trade, bounded reallocation, or wait
+```
+
+A statistical or Bayesian model can estimate relative opportunities. An OR solver can enforce hard constraints. RL or dynamic programming can be introduced only when future-state effects matter. The final system should support the portfolio process rather than replace long-horizon portfolio rules.
+
+## Status
+
+**Conceptual research note.** This repository entry does not contain code, a dataset, or a claim that the proposed controller outperforms buy-and-hold. The next step is empirical validation against strong non-RL baselines.
+
+## Files
+
+- [Full PDF](How_Reinforcement_Learning_Fits_into_Quantitative_Investing.pdf)
+- [Suggested citation](CITATION.md)
+
+## Research and educational use
+
+This note presents a decision framework and research agenda. It is not investment advice and does not claim that frequent portfolio adjustment improves investment performance.
