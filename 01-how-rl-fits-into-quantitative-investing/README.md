@@ -9,6 +9,10 @@ Applied Decision Intelligence Research Note, August 2026
 
 **Publication:** [Applied Decision Intelligence](https://medium.com/applied-decision-intelligence)
 
+**Published on Medium:** [How Reinforcement Learning Fits into Quantitative Investing](https://medium.com/applied-decision-intelligence/how-reinforcement-learning-fits-into-quantitative-investing-e3377290a6b5)
+
+**Publication:** [Applied Decision Intelligence](https://medium.com/applied-decision-intelligence)
+
 ![Research note cover](assets/cover.png)
 
 ## Overview
